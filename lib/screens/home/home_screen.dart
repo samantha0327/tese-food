@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/accessibility_provider.dart';
+import '../../providers/cart_provider.dart';
 import '../../screens/settings/accessibility_screen.dart';
+import '../../screens/menu/menu_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -9,10 +11,11 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final access = context.watch<AccessibilityProvider>();
+    final cart = context.watch<CartProvider>();
 
     return Scaffold(
       backgroundColor: access.backgroundColor,
-      appBar: _buildAppBar(context, access),
+      appBar: _buildAppBar(context, access, cart),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -21,7 +24,7 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(height: 28),
             _buildSectionTitle('¿Qué deseas hacer?', access),
             const SizedBox(height: 16),
-            _buildMenuGrid(context, access),
+            _buildMenuGrid(context, access, cart),
             const SizedBox(height: 32),
           ],
         ),
@@ -30,7 +33,7 @@ class HomeScreen extends StatelessWidget {
   }
 
   PreferredSizeWidget _buildAppBar(
-      BuildContext context, AccessibilityProvider access) {
+      BuildContext context, AccessibilityProvider access, CartProvider cart) {
     return AppBar(
       backgroundColor: access.primaryColor,
       foregroundColor: Colors.white,
@@ -48,7 +51,6 @@ class HomeScreen extends StatelessWidget {
         ),
       ),
       actions: [
-        // Botón de accesibilidad
         IconButton(
           icon: const Icon(Icons.accessibility_new),
           tooltip: 'Accesibilidad',
@@ -60,9 +62,36 @@ class HomeScreen extends StatelessWidget {
             );
           },
         ),
-        IconButton(
-          icon: const Icon(Icons.shopping_cart_outlined),
-          onPressed: () {},
+        Stack(
+          children: [
+            IconButton(
+              icon: const Icon(Icons.shopping_cart_outlined),
+              onPressed: () {},
+            ),
+            if (cart.totalItems > 0)
+              Positioned(
+                right: 6,
+                top: 6,
+                child: Container(
+                  width: 18,
+                  height: 18,
+                  decoration: const BoxDecoration(
+                    color: Colors.red,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Text(
+                      '${cart.totalItems}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
         ),
       ],
     );
@@ -191,7 +220,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMenuGrid(BuildContext context, AccessibilityProvider access) {
+  Widget _buildMenuGrid(BuildContext context, AccessibilityProvider access, CartProvider cart) {
     final List<_MenuOption> options = [
       _MenuOption(
         icon: Icons.shopping_cart_outlined,
@@ -199,7 +228,11 @@ class HomeScreen extends StatelessWidget {
         color: access.highContrast
             ? const Color(0xFF00CC00)
             : const Color(0xFF2D5016),
-        onTap: () {},
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const MenuScreen()),
+          );
+        },
       ),
       _MenuOption(
         icon: Icons.receipt_long_outlined,
@@ -238,8 +271,7 @@ class HomeScreen extends StatelessWidget {
         childAspectRatio: 1.1,
         children: options
             .map((option) => _MenuCard(option: option, access: access))
-            .toList(),
-      ),
+            .toList(),      ),
     );
   }
 }
