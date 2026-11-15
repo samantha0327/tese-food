@@ -1,23 +1,27 @@
 import 'package:flutter/material.dart';
-import '../../theme/app_theme.dart';
+import 'package:provider/provider.dart';
+import '../../providers/accessibility_provider.dart';
+import '../../screens/settings/accessibility_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final access = context.watch<AccessibilityProvider>();
+
     return Scaffold(
-      backgroundColor: AppTheme.backgroundBeige,
-      appBar: _buildAppBar(context),
+      backgroundColor: access.backgroundColor,
+      appBar: _buildAppBar(context, access),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildBanner(),
+            _buildBanner(access),
             const SizedBox(height: 28),
-            _buildSectionTitle('¿Qué deseas hacer?'),
+            _buildSectionTitle('¿Qué deseas hacer?', access),
             const SizedBox(height: 16),
-            _buildMenuGrid(context),
+            _buildMenuGrid(context, access),
             const SizedBox(height: 32),
           ],
         ),
@@ -25,54 +29,67 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  PreferredSizeWidget _buildAppBar(BuildContext context) {
+  PreferredSizeWidget _buildAppBar(
+      BuildContext context, AccessibilityProvider access) {
     return AppBar(
-      backgroundColor: AppTheme.primaryGreen,
+      backgroundColor: access.primaryColor,
       foregroundColor: Colors.white,
       elevation: 0,
-      leading: Builder(
-        builder: (context) => IconButton(
-          icon: const Icon(Icons.menu),
-          onPressed: () {},
-        ),
+      leading: IconButton(
+        icon: const Icon(Icons.menu),
+        onPressed: () {},
       ),
-      title: const Text(
+      title: Text(
         'Cafetería TESE',
         style: TextStyle(
           fontWeight: FontWeight.bold,
-          fontSize: 20,
+          fontSize: 20 * access.textScaleFactor,
           letterSpacing: 0.5,
         ),
       ),
       actions: [
+        // Botón de accesibilidad
+        IconButton(
+          icon: const Icon(Icons.accessibility_new),
+          tooltip: 'Accesibilidad',
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => const AccessibilityScreen(),
+              ),
+            );
+          },
+        ),
         IconButton(
           icon: const Icon(Icons.shopping_cart_outlined),
-          onPressed: () {
-            // TODO: navegar al carrito
-          },
+          onPressed: () {},
         ),
       ],
     );
   }
 
-  Widget _buildBanner() {
+  Widget _buildBanner(AccessibilityProvider access) {
     return Container(
       width: double.infinity,
       height: 180,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            AppTheme.primaryGreen,
-            AppTheme.lightGreen,
-            AppTheme.accentGreen,
-          ],
+          colors: access.highContrast
+              ? [
+                  const Color(0xFF004D00),
+                  const Color(0xFF007000),
+                ]
+              : [
+                  const Color(0xFF2D5016),
+                  const Color(0xFF4A7C2F),
+                  const Color(0xFF6B9E3F),
+                ],
         ),
       ),
       child: Stack(
         children: [
-          // Círculos decorativos de fondo
           Positioned(
             right: -30,
             top: -30,
@@ -97,28 +114,26 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
           ),
-
-          // Contenido del banner
           Padding(
             padding: const EdgeInsets.all(24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text(
+                Text(
                   'Disfruta',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 28,
+                    fontSize: 28 * access.textScaleFactor,
                     fontWeight: FontWeight.w800,
                     height: 1.1,
                   ),
                 ),
-                const Text(
+                Text(
                   'nuestro menú',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 28,
+                    fontSize: 28 * access.textScaleFactor,
                     fontWeight: FontWeight.w800,
                     height: 1.1,
                   ),
@@ -133,11 +148,11 @@ class HomeScreen extends StatelessWidget {
                     color: Colors.white.withAlpha(40),
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: const Text(
+                  child: Text(
                     '☕  Recién preparado para ti',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 13,
+                      fontSize: 13 * access.textScaleFactor,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -145,8 +160,6 @@ class HomeScreen extends StatelessWidget {
               ],
             ),
           ),
-
-          // Ícono decorativo derecho
           Positioned(
             right: 24,
             top: 0,
@@ -164,53 +177,53 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionTitle(String title) {
+  Widget _buildSectionTitle(String title, AccessibilityProvider access) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Text(
         title,
-        style: const TextStyle(
-          fontSize: 18,
+        style: TextStyle(
+          fontSize: 18 * access.textScaleFactor,
           fontWeight: FontWeight.w700,
-          color: AppTheme.textDark,
+          color: access.textColor,
         ),
       ),
     );
   }
 
-  Widget _buildMenuGrid(BuildContext context) {
+  Widget _buildMenuGrid(BuildContext context, AccessibilityProvider access) {
     final List<_MenuOption> options = [
       _MenuOption(
         icon: Icons.shopping_cart_outlined,
         label: 'Realizar\npedido',
-        color: AppTheme.primaryGreen,
-        onTap: () {
-          // TODO: navegar a menú de productos
-        },
+        color: access.highContrast
+            ? const Color(0xFF00CC00)
+            : const Color(0xFF2D5016),
+        onTap: () {},
       ),
       _MenuOption(
         icon: Icons.receipt_long_outlined,
         label: 'Mi\npedido',
-        color: const Color(0xFF1565C0),
-        onTap: () {
-          // TODO: navegar a mis pedidos
-        },
+        color: access.highContrast
+            ? const Color(0xFF4FC3F7)
+            : const Color(0xFF1565C0),
+        onTap: () {},
       ),
       _MenuOption(
         icon: Icons.restaurant_menu_outlined,
         label: 'Menú',
-        color: const Color(0xFF6A1E55),
-        onTap: () {
-          // TODO: navegar al menú
-        },
+        color: access.highContrast
+            ? const Color(0xFFCE93D8)
+            : const Color(0xFF6A1E55),
+        onTap: () {},
       ),
       _MenuOption(
         icon: Icons.notifications_outlined,
         label: 'Notificaciones',
-        color: const Color(0xFFE65100),
-        onTap: () {
-          // TODO: navegar a notificaciones
-        },
+        color: access.highContrast
+            ? const Color(0xFFFFB74D)
+            : const Color(0xFFE65100),
+        onTap: () {},
       ),
     ];
 
@@ -223,13 +236,13 @@ class HomeScreen extends StatelessWidget {
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         childAspectRatio: 1.1,
-        children: options.map((option) => _MenuCard(option: option)).toList(),
+        children: options
+            .map((option) => _MenuCard(option: option, access: access))
+            .toList(),
       ),
     );
   }
 }
-
-// ─── Modelo interno ────────────────────────────────────────────────────────────
 
 class _MenuOption {
   final IconData icon;
@@ -245,12 +258,11 @@ class _MenuOption {
   });
 }
 
-// ─── Tarjeta de opción ─────────────────────────────────────────────────────────
-
 class _MenuCard extends StatelessWidget {
   final _MenuOption option;
+  final AccessibilityProvider access;
 
-  const _MenuCard({required this.option});
+  const _MenuCard({required this.option, required this.access});
 
   @override
   Widget build(BuildContext context) {
@@ -261,41 +273,40 @@ class _MenuCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: access.cardColor,
             borderRadius: BorderRadius.circular(16),
+            border: access.highContrast
+                ? Border.all(color: option.color, width: 2)
+                : null,
             boxShadow: [
-              BoxShadow(
-                color: Colors.black.withAlpha(18),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
+              if (!access.highContrast)
+                BoxShadow(
+                  color: Colors.black.withAlpha(18),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
             ],
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Ícono con fondo de color
               Container(
                 width: 64,
                 height: 64,
                 decoration: BoxDecoration(
-                  color: option.color.withAlpha(25),
+                  color: option.color.withAlpha(access.highContrast ? 60 : 25),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
-                  option.icon,
-                  size: 32,
-                  color: option.color,
-                ),
+                child: Icon(option.icon, size: 32, color: option.color),
               ),
               const SizedBox(height: 12),
               Text(
                 option.label,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 14,
+                style: TextStyle(
+                  fontSize: 14 * access.textScaleFactor,
                   fontWeight: FontWeight.w600,
-                  color: AppTheme.textDark,
+                  color: access.textColor,
                   height: 1.3,
                 ),
               ),
