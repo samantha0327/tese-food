@@ -5,6 +5,7 @@ import '../../providers/cart_provider.dart';
 import '../../providers/accessibility_provider.dart';
 import '../../services/vibration_service.dart';
 import '../../widgets/visual_alert_banner.dart';
+import '../order/cart_screen.dart';
 
 class MenuScreen extends StatefulWidget {
   const MenuScreen({super.key});
@@ -81,7 +82,9 @@ class _MenuScreenState extends State<MenuScreen>
             IconButton(
               icon: const Icon(Icons.shopping_cart_outlined),
               onPressed: () {
-                // TODO: navegar al carrito
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const CartScreen()),
+                );
               },
             ),
             if (cart.totalItems > 0)

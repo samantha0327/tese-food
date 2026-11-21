@@ -4,6 +4,8 @@ import '../../providers/accessibility_provider.dart';
 import '../../providers/cart_provider.dart';
 import '../../screens/settings/accessibility_screen.dart';
 import '../../screens/menu/menu_screen.dart';
+import '../../screens/order/cart_screen.dart';
+import '../../screens/order/order_tracking_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -66,7 +68,11 @@ class HomeScreen extends StatelessWidget {
           children: [
             IconButton(
               icon: const Icon(Icons.shopping_cart_outlined),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const CartScreen()),
+                );
+              },
             ),
             if (cart.totalItems > 0)
               Positioned(
@@ -96,7 +102,6 @@ class HomeScreen extends StatelessWidget {
       ],
     );
   }
-
   Widget _buildBanner(AccessibilityProvider access) {
     return Container(
       width: double.infinity,
@@ -240,7 +245,13 @@ class HomeScreen extends StatelessWidget {
         color: access.highContrast
             ? const Color(0xFF4FC3F7)
             : const Color(0xFF1565C0),
-        onTap: () {},
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => const OrderTrackingScreen(orderNumber: '015'),
+            ),
+          );
+        },
       ),
       _MenuOption(
         icon: Icons.restaurant_menu_outlined,
